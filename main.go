@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"bufio"
+
+	"github.com/logan-bobo/pokedex-cli/internal/pokeapi"
 )
 
 type cliCommand struct {
@@ -24,6 +26,16 @@ func buildCommandInterface() map[string]cliCommand {
 			description: "Exit the Pokedex",
 			callback:    commandExit,
 		},
+		"map": {
+			name:        "map",
+			description: "Show the next 20 locations",
+			callback:    mapNext,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Show the previous 20 locations",
+			callback:     mapPrevious,
+		},
 	}
 }
 
@@ -37,6 +49,23 @@ func commandHelp() error {
 	return nil
 }
 
+func mapNext() error {
+	locations, err := pokeapi.GetNextLocations()
+	
+	if err != nil {
+		return err
+	}
+		
+	fmt.Println(locations)
+	return nil 
+}
+
+func mapPrevious() error {
+	// Return an error if we are on the first page...
+	return nil
+}
+
+
 func main() {
 	cliCommands := buildCommandInterface()	
 	
@@ -46,11 +75,13 @@ func main() {
 		fmt.Print("Pokedex -> ")
 		
 		scanner.Scan()
+		
 		if err := scanner.Err(); err != nil {
 			fmt.Fprintln(os.Stderr, "reading standard input:", err)
 		}
 		
 		command, ok :=  cliCommands[scanner.Text()]
+		
 		if !ok {
 			fmt.Println("Command not found")
 			continue
