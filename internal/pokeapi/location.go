@@ -1,13 +1,24 @@
 package pokeapi
 
 import (
-	"net/http"
-	"io"
-	"fmt"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
+	"net/http"
 )
 
 const endpoint = "https://pokeapi.co/api/v2/"
+
+type Locations struct {
+	Count    int    `json:"count"`
+	Next     string `json:"next"`
+	Previous any    `json:"previous"`
+	Results  []struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	} `json:"results"`
+}
 
 func getAPIEndpoint(path string) ([]byte, error) {
 	requestPath := fmt.Sprintf("%v%v", endpoint, path)
@@ -34,12 +45,22 @@ func getAPIEndpoint(path string) ([]byte, error) {
 	return body, nil
 }
 
-func GetNextLocations() ([]byte, error) {
-	body, err := getAPIEndpoint("location")
+func GetNextLocations(offset string) (Locations, error) {
+	loc := Locations{}
+
+	path := fmt.Sprintf("location-area/?offset=%v", offset)
+
+	body, err := getAPIEndpoint(path)
 
 	if err != nil {
-		return []byte{}, err
+		return loc, err
 	}
 
-	return body, nil
+	err = json.Unmarshal(body, &loc)
+
+	if err != nil {
+		return loc, err
+	}
+
+	return loc, nil
 }
