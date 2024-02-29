@@ -67,7 +67,7 @@ func mapNext(conf *config) error {
 	var err error
 
 	if conf.next == "" {
-		locations, err = pokeapi.GetNextLocations("0")
+		locations, err = pokeapi.GetLocations("0")
 
 		if err != nil {
 			return err
@@ -82,13 +82,13 @@ func mapNext(conf *config) error {
 
 		query := u.Query()
 
-		_, ok := query["offset"]
+		offset, ok := query["offset"]
 
 		if !ok {
 			return errors.New(fmt.Sprintf("Offset not found in URL: %v", conf.next))
 		}
 
-		locations, err = pokeapi.GetNextLocations(query["offset"][0])
+		locations, err = pokeapi.GetLocations(offset[0])
 
 		if err != nil {
 			return err
@@ -111,6 +111,46 @@ func mapNext(conf *config) error {
 }
 
 func mapPrevious(conf *config) error {
+	var locations pokeapi.Locations
+	var err error
+
+	if conf.previous == "" {
+		fmt.Println("No location to go back to...")
+		return err
+
+	} else {
+		u, err := url.Parse(conf.previous)
+
+		if err != nil {
+			return err
+		}
+
+		query := u.Query()
+
+		offset, ok := query["offset"]
+
+		if !ok {
+			return errors.New(fmt.Sprintf("Offset not in URL: %v", conf.previous))
+		}
+
+		locations, err = pokeapi.GetLocations(offset[0])
+
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, location := range locations.Results {
+		fmt.Println(location.Name)
+	}
+
+	previous, ok := locations.Previous.(string)
+
+	if ok {
+		conf.previous = previous
+	}
+
+	conf.next = locations.Next
 
 	return nil
 }

@@ -38,14 +38,19 @@ func getAPIEndpoint(path string) ([]byte, error) {
 	resp.Body.Close()
 
 	if resp.StatusCode > 299 {
-		err := fmt.Sprintf("Non 200 status code, got %v on path %v", resp.StatusCode, requestPath)
-		return []byte{}, errors.New(err)
+		return []byte{}, errors.New(
+			fmt.Sprintf(
+				"Non 200 status code, got %v on path %v", 
+				resp.StatusCode, 
+				requestPath,
+			),
+		)
 	}
 
 	return body, nil
 }
 
-func GetNextLocations(offset string) (Locations, error) {
+func GetLocations(offset string) (Locations, error) {
 	loc := Locations{}
 
 	path := fmt.Sprintf("location-area/?offset=%v", offset)
