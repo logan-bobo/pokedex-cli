@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/logan-bobo/pokedex-cli/internal/cache"
 	"github.com/logan-bobo/pokedex-cli/internal/pokeapi"
 )
 
@@ -14,7 +15,7 @@ type cliCommand struct {
 	name        string
 	description string
 	config      *config
-	callback    func(*config) error
+	callback    func(*config, *cahce.Cache) error
 }
 
 type config struct {
@@ -52,22 +53,23 @@ func buildCommandInterface() map[string]cliCommand {
 	}
 }
 
-func commandExit(conf *config) error {
+func commandExit(conf *config, cache *cahce.Cache) error {
+	fmt.Println("Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp(conf *config) error {
+func commandHelp(conf *config, cache *cahce.Cache) error {
 	fmt.Println("Welcome to the Pokedex!")
 	return nil
 }
 
-func mapNext(conf *config) error {
+func mapNext(conf *config, cache *cahce.Cache) error {
 	var locations pokeapi.Locations
 	var err error
 
 	if conf.next == "" {
-		locations, err = pokeapi.GetLocations("0")
+		locations, err = pokeapi.GetLocations("0", cache)
 
 		if err != nil {
 			return err
@@ -88,7 +90,7 @@ func mapNext(conf *config) error {
 			return errors.New(fmt.Sprintf("Offset not found in URL: %v", conf.next))
 		}
 
-		locations, err = pokeapi.GetLocations(offset[0])
+		locations, err = pokeapi.GetLocations(offset[0], cache)
 
 		if err != nil {
 			return err
@@ -110,7 +112,7 @@ func mapNext(conf *config) error {
 	return nil
 }
 
-func mapPrevious(conf *config) error {
+func mapPrevious(conf *config, cache *cahce.Cache) error {
 	var locations pokeapi.Locations
 	var err error
 
@@ -133,7 +135,7 @@ func mapPrevious(conf *config) error {
 			return errors.New(fmt.Sprintf("Offset not in URL: %v", conf.previous))
 		}
 
-		locations, err = pokeapi.GetLocations(offset[0])
+		locations, err = pokeapi.GetLocations(offset[0], cache)
 
 		if err != nil {
 			return err
@@ -160,6 +162,8 @@ func main() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 
+	cache := cahce.NewCache(60)
+
 	for {
 		fmt.Print("Pokedex -> ")
 
@@ -176,6 +180,7 @@ func main() {
 			continue
 		}
 
-		command.callback(command.config)
+		command.callback(command.config, cache)
 	}
 }
+

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/logan-bobo/pokedex-cli/internal/cache"
 )
 
 const endpoint = "https://pokeapi.co/api/v2/"
@@ -20,42 +22,51 @@ type Locations struct {
 	} `json:"results"`
 }
 
-func getAPIEndpoint(path string) ([]byte, error) {
-	requestPath := fmt.Sprintf("%v%v", endpoint, path)
+func getAPIEndpoint(path string, cache *cahce.Cache) ([]byte, error) {
+	requestURL := fmt.Sprintf("%v%v", endpoint, path)
 
-	resp, err := http.Get(requestPath)
+	cacheObj := cache.Get(requestURL)
 
-	if err != nil {
-		return []byte{}, err
+	if cacheObj {
+		return cache.Data[requestURL].Val, nil
+
+	} else {
+		resp, err := http.Get(requestURL)
+
+		if err != nil {
+			return []byte{}, err
+		}
+
+		body, err := io.ReadAll(resp.Body)
+
+		if err != nil {
+			return []byte{}, err
+		}
+
+		resp.Body.Close()
+
+		if resp.StatusCode > 299 {
+			return []byte{}, errors.New(
+				fmt.Sprintf(
+					"Non 200 status code, got %v on path %v", 
+					resp.StatusCode, 
+					requestURL,
+				),
+			)
+		}
+		
+		cache.Add(requestURL, body)
+
+		return body, nil
 	}
-
-	body, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		return []byte{}, err
-	}
-
-	resp.Body.Close()
-
-	if resp.StatusCode > 299 {
-		return []byte{}, errors.New(
-			fmt.Sprintf(
-				"Non 200 status code, got %v on path %v", 
-				resp.StatusCode, 
-				requestPath,
-			),
-		)
-	}
-
-	return body, nil
 }
 
-func GetLocations(offset string) (Locations, error) {
+func GetLocations(offset string, cache *cahce.Cache) (Locations, error) {
 	loc := Locations{}
 
 	path := fmt.Sprintf("location-area/?offset=%v", offset)
 
-	body, err := getAPIEndpoint(path)
+	body, err := getAPIEndpoint(path, cache)
 
 	if err != nil {
 		return loc, err
