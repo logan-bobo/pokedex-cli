@@ -22,7 +22,7 @@ type Locations struct {
 	} `json:"results"`
 }
 
-func getAPIEndpoint(path string, cache *cahce.Cache) ([]byte, error) {
+func getAPIEndpoint(path string, cache *cache.Cache) ([]byte, error) {
 	requestURL := fmt.Sprintf("%v%v", endpoint, path)
 
 	cacheObj := cache.Get(requestURL)
@@ -61,7 +61,7 @@ func getAPIEndpoint(path string, cache *cahce.Cache) ([]byte, error) {
 	}
 }
 
-func GetLocations(offset string, cache *cahce.Cache) (Locations, error) {
+func GetLocations(offset string, cache *cache.Cache) (Locations, error) {
 	loc := Locations{}
 
 	path := fmt.Sprintf("location-area/?offset=%v", offset)

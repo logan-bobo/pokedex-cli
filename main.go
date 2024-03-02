@@ -15,7 +15,7 @@ type cliCommand struct {
 	name        string
 	description string
 	config      *config
-	callback    func(*config, *cahce.Cache) error
+	callback    func(*config, *cache.Cache) error
 }
 
 type config struct {
@@ -53,18 +53,18 @@ func buildCommandInterface() map[string]cliCommand {
 	}
 }
 
-func commandExit(conf *config, cache *cahce.Cache) error {
+func commandExit(conf *config, cache *cache.Cache) error {
 	fmt.Println("Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp(conf *config, cache *cahce.Cache) error {
+func commandHelp(conf *config, cache *cache.Cache) error {
 	fmt.Println("Welcome to the Pokedex!")
 	return nil
 }
 
-func mapNext(conf *config, cache *cahce.Cache) error {
+func mapNext(conf *config, cache *cache.Cache) error {
 	var locations pokeapi.Locations
 	var err error
 
@@ -112,7 +112,7 @@ func mapNext(conf *config, cache *cahce.Cache) error {
 	return nil
 }
 
-func mapPrevious(conf *config, cache *cahce.Cache) error {
+func mapPrevious(conf *config, cache *cache.Cache) error {
 	var locations pokeapi.Locations
 	var err error
 
@@ -162,7 +162,7 @@ func main() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 
-	cache := cahce.NewCache(60)
+	cache := cache.NewCache(60)
 
 	for {
 		fmt.Print("Pokedex -> ")
@@ -183,4 +183,3 @@ func main() {
 		command.callback(command.config, cache)
 	}
 }
-

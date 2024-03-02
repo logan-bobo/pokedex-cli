@@ -1,7 +1,6 @@
-package cahce
+package cache
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
@@ -26,7 +25,7 @@ func (c *Cache) Add(key string, val []byte) {
 	}
 }
 
-func (c *Cache) Get(key string) (bool) {
+func (c *Cache) Get(key string) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -51,7 +50,7 @@ func (c *Cache) reaploop(interval time.Duration) {
 		for key, value := range c.Data {
 			now := time.Now()
 
-			if now.Unix() - value.createdAt.Unix() > int64(interval) {
+			if now.Unix()-value.createdAt.Unix() > int64(interval) {
 				delete(c.Data, key)
 			}
 		}
@@ -61,7 +60,7 @@ func (c *Cache) reaploop(interval time.Duration) {
 	}
 }
 
-func NewCache(duration time.Duration) (*Cache) {
+func NewCache(duration time.Duration) *Cache {
 	c := Cache{
 		Data: map[string]CacheEntry{},
 		mu:   sync.Mutex{},
@@ -71,4 +70,3 @@ func NewCache(duration time.Duration) (*Cache) {
 
 	return &c
 }
-
