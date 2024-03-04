@@ -25,17 +25,17 @@ func (c *Cache) Add(key string, val []byte) {
 	}
 }
 
-func (c *Cache) Get(key string) bool {
+func (c *Cache) Get(key string) ([]byte, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	_, ok := c.Data[key]
+	data, ok := c.Data[key]
 
 	if ok {
-		return true
+		return data.Val, true
 	}
 
-	return false
+	return data.Val, false
 
 }
 
@@ -66,7 +66,7 @@ func NewCache(duration time.Duration) *Cache {
 		mu:   sync.Mutex{},
 	}
 
-	go c.reaploop(60)
+	go c.reaploop(duration)
 
 	return &c
 }

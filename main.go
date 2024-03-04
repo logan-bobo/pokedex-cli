@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/logan-bobo/pokedex-cli/internal/cache"
 	"github.com/logan-bobo/pokedex-cli/internal/pokeapi"
@@ -162,7 +163,7 @@ func main() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 
-	cache := cache.NewCache(60)
+	cache := cache.NewCache(60 * time.Second)
 
 	for {
 		fmt.Print("Pokedex -> ")

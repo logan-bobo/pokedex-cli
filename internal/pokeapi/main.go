@@ -25,10 +25,10 @@ type Locations struct {
 func getAPIEndpoint(path string, cache *cache.Cache) ([]byte, error) {
 	requestURL := fmt.Sprintf("%v%v", endpoint, path)
 
-	cacheObj := cache.Get(requestURL)
+	data, cacheObj := cache.Get(requestURL)
 
 	if cacheObj {
-		return cache.Data[requestURL].Val, nil
+		return data, nil
 
 	} else {
 		resp, err := http.Get(requestURL)
