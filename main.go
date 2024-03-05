@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/logan-bobo/pokedex-cli/internal/cache"
@@ -16,7 +17,7 @@ type cliCommand struct {
 	name        string
 	description string
 	config      *config
-	callback    func(*config, *cache.Cache) error
+	callback    func(*config, *cache.Cache, string) error
 }
 
 type config struct {
@@ -51,21 +52,27 @@ func buildCommandInterface() map[string]cliCommand {
 			callback:    mapPrevious,
 			config:      &conf,
 		},
+		"explore": {
+			name:        "explore",
+			description: "show all pokemon in an area",
+			callback:    exploreLocation,
+			config:      &conf,
+		},
 	}
 }
 
-func commandExit(conf *config, cache *cache.Cache) error {
+func commandExit(conf *config, cache *cache.Cache, location string) error {
 	fmt.Println("Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp(conf *config, cache *cache.Cache) error {
+func commandHelp(conf *config, cache *cache.Cache, location string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	return nil
 }
 
-func mapNext(conf *config, cache *cache.Cache) error {
+func mapNext(conf *config, cache *cache.Cache, location string) error {
 	var locations pokeapi.Locations
 	var err error
 
@@ -113,7 +120,7 @@ func mapNext(conf *config, cache *cache.Cache) error {
 	return nil
 }
 
-func mapPrevious(conf *config, cache *cache.Cache) error {
+func mapPrevious(conf *config, cache *cache.Cache, location string) error {
 	var locations pokeapi.Locations
 	var err error
 
@@ -158,6 +165,21 @@ func mapPrevious(conf *config, cache *cache.Cache) error {
 	return nil
 }
 
+func exploreLocation(conf *config, cache *cache.Cache, location string) error {
+	locations, err := pokeapi.ExploreLocation(location, cache)
+
+	if err != nil {
+	return err
+	}
+	
+	fmt.Println("Found Pokemon...")
+	for _, pokemon := range locations.PokemonEncounters {
+		fmt.Printf("- %v \n", pokemon.Pokemon.Name)
+	}
+
+	return nil
+}
+
 func main() {
 	cliCommands := buildCommandInterface()
 
@@ -174,13 +196,21 @@ func main() {
 			fmt.Fprintln(os.Stderr, "reading standard input:", err)
 		}
 
-		command, ok := cliCommands[scanner.Text()]
+		inputRaw := scanner.Text()
+
+		inputSplit := strings.Split(inputRaw, " ")
+
+		command, ok := cliCommands[inputSplit[0]]
 
 		if !ok {
 			fmt.Println("Command not found")
 			continue
 		}
 
-		command.callback(command.config, cache)
+		if len(inputSplit) == 1 {
+			command.callback(command.config, cache, "")
+		} else {
+			command.callback(command.config, cache, inputSplit[1])
+		}
 	}
 }
