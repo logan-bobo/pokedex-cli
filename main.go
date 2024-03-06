@@ -299,7 +299,7 @@ func showPokedex(conf *config, cahce *cache.Cache, pokedex *pokedex, name string
 		fmt.Printf("- %v \n", pokemon)
 	}
 
-	return nil 
+	return nil
 }
 
 func main() {

@@ -1,9 +1,9 @@
 package cache
 
 import (
+	"fmt"
 	"testing"
 	"time"
-	"fmt"
 )
 
 func TestAddCacheKey(t *testing.T) {
@@ -20,13 +20,12 @@ func TestAddCacheKey(t *testing.T) {
 			key: "www.google.com",
 			val: []byte("lots of other data"),
 		},
-
 	}
 
-	for index, testCase := range cases { 
+	for index, testCase := range cases {
 		t.Run(fmt.Sprintf("Running test case %v: ", index), func(*testing.T) {
 			cache := NewCache(interval)
-			
+
 			cache.Add(testCase.key, testCase.val)
 			data, ok := cache.Get(testCase.key)
 
@@ -45,21 +44,21 @@ func TestAddCacheKey(t *testing.T) {
 
 func TestCacheReap(t *testing.T) {
 	const reaper = 100 * time.Millisecond
-	const wait = 150 * time.Millisecond 
+	const wait = 150 * time.Millisecond
 
 	cache := NewCache(reaper)
 
 	cache.Add("www.google.com", []byte("some data"))
 
 	_, ok := cache.Get("www.google.com")
-	
+
 	if !ok {
 		t.Errorf("Key not found in cache")
 		return
 	}
 
 	time.Sleep(wait)
-	
+
 	_, ok = cache.Get("www.gooogle.com")
 
 	if ok {
