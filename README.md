@@ -1,5 +1,9 @@
 # Pokedex CLI 
-Pokedex cli allows us look up information about Pokemon, their name, type, and stats.
+Pokedex cli allows for
+- Exploring areas and listing all pokemon in those areas
+- Catching Pokemon
+- Listing a Pokemons stats
+- Show all caught Pokemon
 
 ## Learning Goals
 - How to parse JSON in Go
