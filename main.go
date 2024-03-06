@@ -83,6 +83,12 @@ func buildCommandInterface() map[string]cliCommand {
 			callback:    inspectPokemon,
 			config:      &conf,
 		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "List all pokemon in pokedex",
+			callback:    showPokedex,
+			config:      &conf,
+		},
 	}
 }
 
@@ -284,6 +290,16 @@ func inspectPokemon(conf *config, cache *cache.Cache, pokedex *pokedex, name str
 	}
 
 	return nil
+}
+
+func showPokedex(conf *config, cahce *cache.Cache, pokedex *pokedex, name string) error {
+	fmt.Println("Listing Pokemon: ")
+
+	for pokemon, _ := range pokedex.entities {
+		fmt.Printf("- %v \n", pokemon)
+	}
+
+	return nil 
 }
 
 func main() {
