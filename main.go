@@ -77,6 +77,12 @@ func buildCommandInterface() map[string]cliCommand {
 			callback:    catchPokemon,
 			config:      &conf,
 		},
+		"inspect": {
+			name:        "inspect",
+			description: "Inspect a pokemon",
+			callback:    inspectPokemon,
+			config:      &conf,
+		},
 	}
 }
 
@@ -250,6 +256,30 @@ func catchPokemon(conf *config, cache *cache.Cache, pokedex *pokedex, name strin
 			pokedex.entities[pokemon.Name] = pokemon
 		} else {
 			fmt.Println("Pokemon already registered in your pokedex")
+		}
+	}
+
+	return nil
+}
+
+func inspectPokemon(conf *config, cache *cache.Cache, pokedex *pokedex, name string) error {
+	pokemon, ok := pokedex.entities[name]
+
+	if !ok {
+		fmt.Println("You have not caught this pokemon")
+	} else {
+		fmt.Printf("Name: %v \n Height: %v \n Weight: %v \n Stats:\n",
+			pokemon.Name, pokemon.Height, pokemon.Weight,
+		)
+
+		for _, item := range pokemon.Stats {
+			fmt.Printf("   - %v: %v \n", item.Stat.Name, item.BaseStat)
+		}
+
+		fmt.Println("Types:")
+
+		for _, item := range pokemon.Types {
+			fmt.Printf("   - %v \n", item.Type.Name)
 		}
 	}
 
