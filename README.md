@@ -1,5 +1,6 @@
 # Pokedex CLI 
-Pokedex cli allows for
+
+**Functionality**: 
 - Exploring areas and listing all pokemon in those areas
 - Catching Pokemon
 - Listing a Pokemons stats
